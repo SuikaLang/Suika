@@ -1,0 +1,19 @@
+constant types:
+integer: {type: 0, value: 4bytes}
+float: {type: 1, value: 4bytes}
+string: {type: 2, value: written by DataInputStream.writeUTF()}
+
+function: {
+	bound var name: 2bytes, index of string
+	locals: 2bytes
+	code length: 4bytes
+	code: byte[length]
+}
+
+.skc file: {
+  magic number: 0x73 6B 63 21 ("skc!" in ASCII)
+  constant count: 2bytes
+  constant pool: constant[count]
+  function count: 2bytes
+  function pool: function[count]
+}

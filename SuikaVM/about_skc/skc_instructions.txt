@@ -1,0 +1,42 @@
+index = int16
+
+- none
+NOPE = 0x00,
+- math calculate
+ADD = 0x01,
+SUB = 0x02,
+MUL = 0x03,
+DIV = 0x04,
+MOD = 0x05,
+NEG = 0x06,
+- realtional
+GTR = 0x07,
+LSS = 0x08,
+GEQ = 0x09,
+LEQ = 0x0A,
+AND = 0x0B,
+OR = 0x0C,
+NOT = 0x0D,
+- equality
+EQ = 0x0E,
+NEQ = 0x0F,
+- index jump
+GOTO = 0x10,
+IF = 0x11, - goto index if stack top is true
+- function call
+CALL = 0x12,
+RET = 0x13, - return element on the top of operand stack
+- stack operate
+POP = 0x14,
+DUPE = 0x15,
+SWAP = 0x16,
+CONST = 0x17,
+CONST_NULL = 0x18,
+CONST_TRUE = 0x19,
+CONST_FALSE = 0x1A,
+- local variable operate
+LOAD = 0x1B, - num of local
+STORE = 0x1C, - num of local
+- global variable operate
+LOADGV = 0x1D, - index of string, refers to the name of global variable
+STOREGV = 0x1E,  - index of string, refers to the name of global variable
