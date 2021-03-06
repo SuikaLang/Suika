@@ -1,0 +1,23 @@
+# User-specific stuff
+.idea/
+
+*.iml
+*.ipr
+*.iws
+
+# IntelliJ
+out/
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# Gradle
+.gradle/
+gradlew
+gradlew.bat
+gradle/
