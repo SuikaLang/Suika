@@ -21,3 +21,14 @@ out/
 gradlew
 gradlew.bat
 gradle/
+
+# vscode
+.settings/
+.classpath
+.project
+
+# antlr
+*.interp
+*.tokens
+SuikaCompiler/grammar/*.java
+.antlr/

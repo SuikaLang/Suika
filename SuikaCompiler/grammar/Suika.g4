@@ -10,10 +10,10 @@ package top.suika.compiler.parse;
 
 chunk: stat* EOF;
 
-funDecl: 'fn' name=Ident '(' args ')' body=(block)
-args= Ident? (',' Ident)*;
-
 block: '{' stat* '}';
+funDecl: 'fn' name=Ident '(' args ')' body=block;
+args: Ident? (',' Ident)*;
+
 
 stat
 : expr EOS																																												# ExprStat
@@ -27,8 +27,8 @@ stat
 ;
 
 atom: Int | Float | Bool | Str | Null;
-listLiteral: '[' exprs ']';
-mapLiteral: '{' kvPairs '}';
+//listLiteral: '[' exprs ']';
+//mapLiteral: '{' kvPairs '}';
 expr
 : '(' expr ')'                                              # ParenExpr
 | atom 																									    # AtomExpr
@@ -36,7 +36,7 @@ expr
 | expr (op='[' index=expr ']')+                             # IndexExpr
 | expr (op='.' attr=Ident)+                    						  # AttrExpr
 | expr ('(' params=exprs ')')+                              # CallExpr
-| (op=('+' | '-' | '!'))* expr                              # UnaryExpr
+| (op=('+' | '-' | '!'))+ expr                              # UnaryExpr
 | expr (op=('*' | '/' | '%') expr)+                         # MulDivModExpr
 | expr (op=('+' | '-') expr)+                               # AddSubExpr
 | expr (op=('>' | '<' | '>=' | '<=') expr)+                 # RelationExpr
@@ -46,15 +46,15 @@ expr
 | expr (op='=' expr)+ 										                  # AssignmentExpr
 ;
 exprs: expr? (',' expr)*;
-kvPair: key=Ident '=' value=expr;
-kvPairs: pair=kvPair? (',' pair=kvPair)*;
+//kvPair: key=Ident '=' value=expr;
+//kvPairs: pair=kvPair? (',' pair=kvPair)*;
 
-structDecl: 'struct' name=Ident '{' (attr=Ident)? (',' attr=Ident)* '}';
+//structDecl: 'struct' name=Ident '{' (attr=Ident)? (',' attr=Ident)* '}';
 
 Int: [0-9]+;
 Float: [0-9]+ '.' [0-9]+;
 Bool: 'true' | 'false';
-Str: ('"' | '\'') ('\\"' | .)* ('"' | '\'');
+Str: ('"' | '\'') (~['"])* ('"' | '\'');
 Null: 'null';
 
 Ident: [a-zA-Z_$] [a-zA-Z0-9_$]*;
