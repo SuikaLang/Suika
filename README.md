@@ -1,9 +1,9 @@
-<font color="white" size=7><center>Suika!🍉</center></font>
+# Suika!🍉
 
 <div align="center">
    <img width="240" src="https://i.loli.net/2021/03/07/KLR7xzGYIMoiU3f.png" alt="logo"></div>
 
-##### <center>_pixiv id:80083721_</center>
+##### _pixiv id:80083721_
 
 ----
 
