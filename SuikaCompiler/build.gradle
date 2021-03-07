@@ -1,14 +1,34 @@
-plugins {
-    id 'java'
-}
-
 group 'top.suika'
 version '1.0'
+println project.name
+description 'suika compiler module'
+
+apply plugin: 'java'
+apply plugin: 'antlr'
 
 repositories {
+    mavenLocal()
     maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
     maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
 }
 
 dependencies {
+    antlr 'org.antlr:antlr4:4.9.1'
+    compile "org.antlr:antlr4-runtime:4.9.1"
 }
+
+sourceSets {
+    main.java {
+        srcDir 'src/main/antlr'
+    }
+}
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+generateGrammarSource {
+    maxHeapSize = "64m"
+    outputDirectory = file('src/main/java/' + 'top/suika/compiler/parse')
+    arguments += ["-no-listener", "-visitor", "-long-messages"]
+}
+

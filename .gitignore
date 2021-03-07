@@ -12,6 +12,7 @@ out/
 
 # Compiled class file
 *.class
+*.jar
 
 # Log file
 *.log
@@ -21,6 +22,7 @@ out/
 gradlew
 gradlew.bat
 gradle/
+build/
 
 # vscode
 .settings/

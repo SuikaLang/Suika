@@ -1,4 +1,4 @@
-// Generated from Suika.g4 by ANTLR 4.9
+// Generated from Suika.g4 by ANTLR 4.9.1
 
 package top.suika.compiler.parse;
 
