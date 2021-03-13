@@ -5,10 +5,11 @@ import java.io.InputStream;
 
 /**
  * Use DataInputStream instead.
+ * Modifying this class is not on the schedule
  */
 public class HelperInputStream extends InputStream{
   
-  private InputStream source;
+  private final InputStream source;
   
   public HelperInputStream(InputStream source){
     super();

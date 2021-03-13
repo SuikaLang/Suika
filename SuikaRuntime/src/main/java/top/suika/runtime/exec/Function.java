@@ -1,15 +1,11 @@
 package top.suika.runtime.exec;
 
-import java.util.UUID;
-
 public final class Function{
   
-  public final UUID id;
-  public final Instruction[] code;
+  public final Opcode[] code;
   public final int localCount;
   
-  public Function(UUID uuid, Instruction[] code, int localCount){
-    this.id = uuid;
+  public Function(Opcode[] code, int localCount){
     this.code = code;
     this.localCount = localCount;
   }

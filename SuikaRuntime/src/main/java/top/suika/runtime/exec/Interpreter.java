@@ -9,10 +9,10 @@ import java.util.HashMap;
 public class Interpreter{
   
   private final LimitedStack<ExecContext> stackFrames = new LimitedStack<>(65536);
-  private HashMap<String, SValue> globalVars;
-  private SValue[] constants;
+  private final HashMap<String, SValue> globalVars;
+  private final SValue[] constants;
   
-  private Instruction[] code;
+  private Opcode[] code;
   private int index;
   private SValue[] locals;
   private LimitedStack<SValue> operands;
@@ -25,99 +25,125 @@ public class Interpreter{
   public void exec(){
     mainloop:
     while(true){
-      Instruction opcode = code[index++];
+      Opcode opcode = code[index++];
       SValue left, right;
       switch(opcode.type){
-        case Instruction.Types.NOPE:
+        case OpcodeType.NOPE:
           continue;
-        case Instruction.Types.ADD:
+          
+        case OpcodeType.ADD:
           right = operands.pop();
           left = operands.pop();
-          operands.push(new SNum(((SNum) left).value + ((SNum) right).value));
+          operands.push(left.opAdd(right));
           continue;
-        case Instruction.Types.SUB:
+          
+        case OpcodeType.SUB:
           right = operands.pop();
           left = operands.pop();
-          operands.push(new SNum(((SNum) left).value - ((SNum) right).value));
+          operands.push(left.opSub(right));
           continue;
-        case Instruction.Types.MUL:
+          
+        case OpcodeType.MUL:
           right = operands.pop();
           left = operands.pop();
-          operands.push(new SNum(((SNum) left).value * ((SNum) right).value));
+          operands.push(left.opMul(right));
           continue;
-        case Instruction.Types.DIV:
+          
+        case OpcodeType.DIV:
           right = operands.pop();
           left = operands.pop();
-          operands.push(new SNum(((SNum) left).value / ((SNum) right).value));
+          operands.push(left.opDiv(right));
           continue;
-        case Instruction.Types.MOD:
+          
+        case OpcodeType.MOD:
           right = operands.pop();
           left = operands.pop();
-          operands.push(new SNum(((SNum) left).value % ((SNum) right).value));
+          operands.push(left.opMod(right));
           continue;
-        case Instruction.Types.NEG:
+          
+        case OpcodeType.NEG:
           left = operands.pop();
-          operands.push(new SNum(-((SNum) left).value));
+          operands.push(left.opNeg());
           continue;
-        case Instruction.Types.GTR:
+          
+        case OpcodeType.GTR:
           right = operands.pop();
           left = operands.pop();
-          operands.push(SBool.valueOf(((SNum) left).value > ((SNum) right).value));
+          operands.push(left.opGtr(right));
           continue;
-        case Instruction.Types.LSS:
+          
+        case OpcodeType.LSS:
           right = operands.pop();
           left = operands.pop();
-          operands.push(SBool.valueOf(((SNum) left).value < ((SNum) right).value));
+          operands.push(left.opLss(right));
           continue;
-        case Instruction.Types.GEQ:
+          
+        case OpcodeType.GEQ:
           right = operands.pop();
           left = operands.pop();
-          operands.push(SBool.valueOf(((SNum) left).value >= ((SNum) right).value));
+          operands.push(left.opGeq(right));
           continue;
-        case Instruction.Types.LEQ:
+          
+        case OpcodeType.LEQ:
           right = operands.pop();
           left = operands.pop();
-          operands.push(SBool.valueOf(((SNum) left).value <= ((SNum) right).value));
+          operands.push(left.opLeq(right));
           continue;
-        case Instruction.Types.AND:
+          
+        case OpcodeType.AND:
           right = operands.pop();
           left = operands.pop();
-          operands.push(SBool.valueOf(left == SBool.TRUE && right == SBool.TRUE));
+          operands.push(left.opAnd(right));
           continue;
-        case Instruction.Types.OR:
+          
+        case OpcodeType.OR:
           right = operands.pop();
           left = operands.pop();
-          operands.push(SBool.valueOf(left == SBool.TRUE || right == SBool.TRUE));
+          operands.push(left.opOr(right));
           continue;
-        case Instruction.Types.NOT:
+          
+        case OpcodeType.NOT:
           left = operands.pop();
-          operands.push(left == SBool.TRUE ? SBool.FALSE : SBool.TRUE);
+          operands.push(left.opNot());
           continue;
-        case Instruction.Types.EQ:
+          
+        case OpcodeType.EQ:
           right = operands.pop();
           left = operands.pop();
-          operands.push(SBool.valueOf(left == right));
+          operands.push(left.opEq(right));
           continue;
-        case Instruction.Types.NEQ:
+          
+        case OpcodeType.NEQ:
           right = operands.pop();
           left = operands.pop();
-          operands.push(SBool.valueOf(left != right));
+          operands.push(left.opNeq(right));
           continue;
-        case Instruction.Types.GOTO:
+          
+        case OpcodeType.GOTO:
           index = opcode.arg;
           continue;
-        case Instruction.Types.IF:
-          if(operands.pop() == SBool.TRUE) index = opcode.arg;
+          
+        case OpcodeType.IF:
+          if(operands.pop() == SBool.FALSE) index = opcode.arg;
           continue;
-        case Instruction.Types.CALL:
+          
+        case OpcodeType.CALL:
           left = operands.pop();
+          if(opcode.arg > ((SFunctionRef) left).value.localCount)
+            throw new ArrayIndexOutOfBoundsException("arg count > local count");
+          var args = new SValue[opcode.arg];
+          for(int i = opcode.arg - 1; i >= 0; --i){
+            args[i] = operands.pop();
+          }
           stackFrames.push(new ExecContext(code, index, locals, operands));
           code = ((SFunctionRef) left).value.code;
           index = 0;
           locals = new SValue[((SFunctionRef) left).value.localCount];
+          System.arraycopy(args, 0, locals, 0, args.length);
           operands = new LimitedStack<>(4096);
           continue;
-        case Instruction.Types.RET:
+          
+        case OpcodeType.RET:
           if(stackFrames.count() == 0) break mainloop;
           SValue retVal = operands.peek();
           ExecContext ctx = stackFrames.pop();
@@ -127,40 +153,51 @@ public class Interpreter{
           operands = ctx.operands;
           operands.push(retVal);
           continue;
-        case Instruction.Types.POP:
+          
+        case OpcodeType.POP:
           operands.pop();
           continue;
-        case Instruction.Types.DUPE:
+          
+        case OpcodeType.DUPE:
           operands.push(operands.peek());
           continue;
-        case Instruction.Types.SWAP:
+          
+        case OpcodeType.SWAP:
           right = operands.pop();
           left = operands.pop();
           operands.push(left);
           operands.push(right);
           continue;
-        case Instruction.Types.CONST:
+          
+        case OpcodeType.CONST:
           operands.push(constants[opcode.arg]);
           continue;
-        case Instruction.Types.CONST_NULL:
+          
+        case OpcodeType.CONST_NULL:
           operands.push(SNull.INSTANCE);
           continue;
-        case Instruction.Types.CONST_TRUE:
+          
+        case OpcodeType.CONST_TRUE:
           operands.push(SBool.TRUE);
           continue;
-        case Instruction.Types.CONST_FALSE:
+          
+        case OpcodeType.CONST_FALSE:
           operands.push(SBool.FALSE);
           continue;
-        case Instruction.Types.LOAD:
+          
+        case OpcodeType.LOAD:
           operands.push(locals[opcode.arg]);
           continue;
-        case Instruction.Types.STORE:
+          
+        case OpcodeType.STORE:
           locals[opcode.arg] = operands.pop();
           continue;
-        case Instruction.Types.LOADGV:;
+          
+        case OpcodeType.LOADGV:;
           operands.push(globalVars.get(((SStr) constants[opcode.arg]).value));
           continue;
-        case Instruction.Types.STOREGV:
+          
+        case OpcodeType.STOREGV:
           globalVars.put(((SStr) constants[opcode.arg]).value, operands.pop());
           continue;
       }

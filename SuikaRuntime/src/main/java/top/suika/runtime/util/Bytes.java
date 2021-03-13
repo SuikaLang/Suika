@@ -1,5 +1,9 @@
 package top.suika.runtime.util;
 
+/**
+ * tools.
+ * temporarily useless, or permanent, i don't know
+ */
 public final class Bytes{
   
   private Bytes(){}
